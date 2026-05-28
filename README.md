@@ -111,6 +111,19 @@
             font-weight: 600;
         }
 
+        /* Error Output Display */
+        .error-display-box {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+        }
+
         /* Result Dashboard */
         .result-box {
             background: #1e293b;
@@ -118,9 +131,8 @@
             padding: 22px;
             border-radius: 12px;
             text-align: center;
-            margin-top: 30px;
+            margin-top: 15px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-            position: relative;
         }
         .result-val { font-size: 3.5rem; font-weight: 800; color: #38bdf8; margin: 5px 0; }
         
@@ -203,6 +215,10 @@
         <div class="ticks"><span>0% (No Error)</span><span>5% (Moderate)</span><span>10% (High)</span></div>
     </div>
 
+    <div class="error-display-box">
+        Active Error Value (ε) = <span id="error-val-readout">0.00%</span>
+    </div>
+
     <div class="result-box">
         <div style="font-weight: 500; letter-spacing: 0.5px; color: #94a3b8;">TOTAL TEAM PERFORMANCE</div>
         <div class="result-val" id="tp-output">44.4%</div>
@@ -215,7 +231,6 @@
 </div>
 
 <script>
-// Persistent variable to store the active error value between movements
 let activeErrorValue = 0;
 
 // Box-Muller Transform to generate standard normal random variables (Mean=0, StdDev=1)
@@ -241,7 +256,7 @@ function calculateModel(generateNewError = false) {
     document.getElementById('sd-val-label').innerText = "Value: " + sd;
     document.getElementById('error-label').innerText = "± " + errorSetting + "%";
 
-    // If needed (or on initial load), generate a brand new random error vector
+    // If needed, generate a brand new random error vector
     if (generateNewError) {
         activeErrorValue = randomNormal() * errorSetting;
     }
@@ -263,7 +278,11 @@ function calculateModel(generateNewError = false) {
     // Print results to UI
     document.getElementById('tp-output').innerText = totalTP.toFixed(1) + '%';
     
-    // Construct formatting string sign for the active error
+    // Update the separate Error readout text
+    const prefixedSign = activeErrorValue >= 0 ? "+" : "";
+    document.getElementById('error-val-readout').innerText = prefixedSign + activeErrorValue.toFixed(2) + "%";
+    
+    // Construct formatting string sign for the active equation display
     const errorSign = activeErrorValue >= 0 ? "+ " : "- ";
     const displayErrorVal = Math.abs(activeErrorValue).toFixed(2);
 
@@ -272,7 +291,7 @@ function calculateModel(generateNewError = false) {
         `TP = ${b0} + ${b1}(PC) + ${b2}(TC) + ${b3}(P_C) + ${b4}(SD) [${errorSign}${displayErrorVal}ε]`;
 }
 
-// Generate starting error and initialize configuration display on load
+// Initialize execution
 calculateModel(true);
 </script>
 
